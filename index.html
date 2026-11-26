@@ -27,7 +27,6 @@
     line-height: 1.5;
   }
 
-  /* ヘッダー */
   header {
     position: sticky; top: 0; z-index: 10;
     background: rgba(255, 253, 242, 0.94);
@@ -37,28 +36,24 @@
   }
   .header-top {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 10px; gap: 8px;
   }
-  h1 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 6px; }
-  .controls {
-    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;
-  }
-  select, .filter-btn {
+  h1 { margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 6px; }
+  .header-btns { display: flex; gap: 6px; align-items: center; }
+  .controls { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+  select, .filter-btn, .icon-btn {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; color: var(--text);
-    outline: none;
+    outline: none; cursor: pointer;
   }
+  .icon-btn { padding: 6px 10px; }
   .filter-btn.active {
     background: var(--accent); border-color: var(--accent); font-weight: bold;
   }
 
-  /* メインリスト */
   main { padding: 12px 16px; max-width: 600px; margin: 0 auto; }
-  .empty-state {
-    text-align: center; padding: 60px 20px; color: var(--text-sub);
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sub); }
 
-  /* 年別アコーディオン */
   .year-group { margin-bottom: 16px; }
   .year-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -68,7 +63,6 @@
   }
   .year-content.collapsed { display: none; }
 
-  /* 映画カード */
   .movie-card {
     display: flex; gap: 12px; background: var(--surface);
     border: 1px solid var(--border); border-radius: var(--radius);
@@ -96,7 +90,6 @@
   .card-rating { color: var(--accent-dark); font-weight: bold; font-size: 0.9rem; }
   .note-count { font-size: 0.75rem; color: var(--text-sub); margin-left: 8px; }
 
-  /* 追加ボタン（FAB） */
   .fab {
     position: fixed; right: 20px; bottom: 24px;
     width: 58px; height: 58px; border-radius: 50%;
@@ -108,7 +101,6 @@
   }
   .fab:active { transform: scale(0.92); }
 
-  /* モーダル（登録・編集画面） */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(61, 53, 34, 0.45);
     z-index: 30; display: none; align-items: flex-end; justify-content: center;
@@ -119,14 +111,13 @@
     height: 92vh; border-radius: 20px 20px 0 0;
     display: flex; flex-direction: column; overflow: hidden;
   }
+  .modal.small-modal { height: auto; max-height: 70vh; }
   .modal-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 16px; background: var(--surface);
     border-bottom: 1px solid var(--border);
   }
-  .modal-body {
-    flex: 1; overflow-y: auto; padding: 16px;
-  }
+  .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
   .btn-text {
     background: none; border: none; font-size: 0.95rem; color: var(--text-sub);
     padding: 6px 8px; cursor: pointer;
@@ -137,7 +128,6 @@
     cursor: pointer;
   }
 
-  /* フォーム要素 */
   .section-title {
     font-size: 0.85rem; font-weight: bold; color: var(--accent-dark);
     margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;
@@ -154,7 +144,6 @@
   input:focus, textarea:focus { border-color: var(--accent-dark); }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* 時間帯チップ */
   .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip {
     padding: 6px 12px; border-radius: 16px; border: 1px solid var(--border);
@@ -162,17 +151,13 @@
   }
   .chip.selected { background: var(--accent); border-color: var(--accent); font-weight: bold; }
 
-  /* ポスターアップロード */
-  .poster-upload-area {
-    display: flex; align-items: center; gap: 12px;
-  }
+  .poster-upload-area { display: flex; align-items: center; gap: 12px; }
   .poster-preview {
     width: 60px; height: 84px; border-radius: 8px; object-fit: cover;
     background: var(--accent-light); display: flex; align-items: center;
     justify-content: center; font-size: 1.2rem; color: var(--accent-dark);
   }
 
-  /* 星評価（0.5刻み） */
   .star-box {
     display: flex; align-items: center; gap: 12px;
     background: var(--surface); padding: 10px 14px; border-radius: 12px;
@@ -187,14 +172,11 @@
     position: absolute; top: 0; left: 0; overflow: hidden; color: var(--accent);
     pointer-events: none;
   }
-  .star-half-l, .star-half-r {
-    position: absolute; top: 0; bottom: 0; width: 50%; z-index: 2;
-  }
+  .star-half-l, .star-half-r { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 2; }
   .star-half-l { left: 0; }
   .star-half-r { right: 0; }
   .rating-num { font-size: 1.2rem; font-weight: bold; color: var(--accent-dark); min-width: 40px; }
 
-  /* ふせん感想メモ */
   .fusen-input-box {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 10px; margin-bottom: 12px;
@@ -223,7 +205,6 @@
     color: var(--text-sub); font-size: 1rem; cursor: pointer;
   }
 
-  /* アクションボタン群（コピー・削除） */
   .modal-footer-actions {
     display: flex; gap: 10px; margin-top: 24px; padding-top: 16px;
     border-top: 1px solid var(--border);
@@ -231,11 +212,17 @@
   .btn-outline {
     flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--accent-dark);
     background: var(--surface); color: var(--accent-dark); font-weight: bold; cursor: pointer;
+    text-align: center;
   }
   .btn-danger {
     padding: 10px 14px; border-radius: 10px; border: 1px solid #FADBD8;
     background: #FDEDEC; color: var(--danger); font-weight: bold; cursor: pointer;
   }
+  .backup-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin-bottom: 12px;
+  }
+  .backup-desc { font-size: 0.85rem; color: var(--text-sub); margin: 0 0 10px; }
 </style>
 </head>
 <body>
@@ -243,10 +230,13 @@
 <header>
   <div class="header-top">
     <h1>🎬 シネマふせん</h1>
-    <button id="filterWaitingBtn" class="filter-btn" onclick="toggleWaitingFilter()">感想待ちのみ</button>
+    <div class="header-btns">
+      <button id="filterWaitingBtn" class="filter-btn" type="button">感想待ちのみ</button>
+      <button id="backupMenuBtn" class="icon-btn" type="button" aria-label="バックアップ">💾</button>
+    </div>
   </div>
   <div class="controls">
-    <select id="sortSelect" onchange="renderList()">
+    <select id="sortSelect">
       <option value="date_desc">新しい順</option>
       <option value="rating_desc">評価が高い順</option>
       <option value="title_asc">タイトル順</option>
@@ -257,18 +247,17 @@
 
 <main id="movieList"></main>
 
-<button class="fab" onclick="openModal()" aria-label="映画を追加">＋</button>
+<button id="fabAddBtn" class="fab" type="button" aria-label="映画を追加">＋</button>
 
 <!-- 登録・編集モーダル -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <button class="btn-text" onclick="closeModal()">閉じる</button>
+      <button id="closeModalBtn" class="btn-text" type="button">閉じる</button>
       <strong id="modalTitle">映画を記録</strong>
-      <button class="btn-primary" onclick="saveMovie()">保存</button>
+      <button id="saveMovieBtn" class="btn-primary" type="button">保存</button>
     </div>
     <div class="modal-body">
-      <!-- 鑑賞前セクション -->
       <div class="section-title">🎟️ 観る前メモ（基本情報）</div>
       
       <div class="form-group">
@@ -281,8 +270,8 @@
         <div class="poster-upload-area">
           <div id="posterPreviewBox" class="poster-preview">🎬</div>
           <div>
-            <input type="file" id="fPoster" accept="image/*" style="font-size:0.8rem; width:100%;" onchange="handleImageUpload(event)">
-            <button type="button" class="btn-text" style="font-size:0.75rem; padding:4px 0;" onclick="clearPoster()">画像をクリア</button>
+            <input type="file" id="fPoster" accept="image/*" style="font-size:0.8rem; width:100%;">
+            <button type="button" id="clearPosterBtn" class="btn-text" style="font-size:0.75rem; padding:4px 0;">画像をクリア</button>
           </div>
         </div>
       </div>
@@ -301,11 +290,11 @@
       <div class="form-group">
         <label>時間帯</label>
         <div class="chip-group" id="timeChips">
-          <div class="chip" data-val="朝" onclick="selectTime('朝')">朝</div>
-          <div class="chip" data-val="昼" onclick="selectTime('昼')">昼</div>
-          <div class="chip" data-val="夕方" onclick="selectTime('夕方')">夕方</div>
-          <div class="chip" data-val="夜" onclick="selectTime('夜')">夜</div>
-          <div class="chip" data-val="レイト" onclick="selectTime('レイト')">レイト</div>
+          <div class="chip" data-val="朝">朝</div>
+          <div class="chip" data-val="昼">昼</div>
+          <div class="chip" data-val="夕方">夕方</div>
+          <div class="chip" data-val="夜">夜</div>
+          <div class="chip" data-val="レイト">レイト</div>
         </div>
       </div>
 
@@ -319,7 +308,6 @@
         <textarea id="fExpect" rows="2" placeholder="観る前のワクワクや注目ポイント"></textarea>
       </div>
 
-      <!-- 鑑賞後セクション -->
       <div class="section-title">🍿 観たあとメモ（評価・ふせん）</div>
 
       <div class="form-group">
@@ -327,7 +315,7 @@
         <div class="star-box">
           <div class="stars-wrap" id="starsWrap"></div>
           <div class="rating-num" id="ratingNum">0.0</div>
-          <button type="button" class="btn-text" style="font-size:0.75rem; margin-left:auto;" onclick="setRating(0)">リセット</button>
+          <button type="button" id="resetRatingBtn" class="btn-text" style="font-size:0.75rem; margin-left:auto;">リセット</button>
         </div>
       </div>
 
@@ -335,35 +323,65 @@
         <label>感想ふせん（タグを選んでどんどん追加）</label>
         <div class="fusen-input-box">
           <div class="fusen-tags" id="fusenTags">
-            <span class="fusen-tag selected" onclick="selectFusenTag(this, 'ストーリー')">ストーリー</span>
-            <span class="fusen-tag" onclick="selectFusenTag(this, '役者')">役者</span>
-            <span class="fusen-tag" onclick="selectFusenTag(this, '映像・セット')">映像・セット</span>
-            <span class="fusen-tag" onclick="selectFusenTag(this, '音楽')">音楽</span>
-            <span class="fusen-tag" onclick="selectFusenTag(this, 'その他')">その他</span>
+            <span class="fusen-tag selected" data-tag="ストーリー">ストーリー</span>
+            <span class="fusen-tag" data-tag="役者">役者</span>
+            <span class="fusen-tag" data-tag="映像・セット">映像・セット</span>
+            <span class="fusen-tag" data-tag="音楽">音楽</span>
+            <span class="fusen-tag" data-tag="その他">その他</span>
           </div>
           <div class="fusen-add-row">
             <input type="text" id="fFusenText" placeholder="ここが良かった！などをささっと入力">
-            <button type="button" class="btn-primary" style="padding:8px 14px; border-radius:10px; flex-shrink:0;" onclick="addFusen()">追加</button>
+            <button type="button" id="addFusenBtn" class="btn-primary" style="padding:8px 14px; border-radius:10px; flex-shrink:0;">追加</button>
           </div>
         </div>
         <div class="fusen-list" id="fusenList"></div>
       </div>
 
       <div class="modal-footer-actions" id="editActions" style="display:none;">
-        <button type="button" class="btn-outline" onclick="copyForShare()">📋 感想をコピー</button>
-        <button type="button" class="btn-danger" onclick="deleteMovie()">削除</button>
+        <button type="button" id="copyShareBtn" class="btn-outline">📋 感想をコピー</button>
+        <button type="button" id="deleteMovieBtn" class="btn-danger">削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- バックアップ・復元モーダル -->
+<div class="modal-overlay" id="backupOverlay">
+  <div class="modal small-modal">
+    <div class="modal-header">
+      <button id="closeBackupBtn" class="btn-text" type="button">閉じる</button>
+      <strong>💾 データ管理</strong>
+      <span style="width:48px;"></span>
+    </div>
+    <div class="modal-body">
+      <div class="backup-box">
+        <div style="font-weight:bold; margin-bottom:4px;">1. バックアップを保存</div>
+        <p class="backup-desc">今の映画記録をすべてファイル（JSON）としてスマホにダウンロードします。機種変更や万が一の備えにどうぞ。</p>
+        <button type="button" id="exportDataBtn" class="btn-primary" style="width:100%;">📥 バックアップファイルを保存</button>
+      </div>
+      <div class="backup-box">
+        <div style="font-weight:bold; margin-bottom:4px;">2. バックアップから復元</div>
+        <p class="backup-desc">保存しておいたJSONファイルを選びます（※現在のデータは読み込んだデータで上書きされます）。</p>
+        <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
+        <button type="button" id="importDataBtn" class="btn-outline" style="width:100%;">📤 バックアップファイルを読み込む</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'cinema_fusen_movies_v1';
-  let movies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let movies = [];
+  try {
+    movies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!Array.isArray(movies)) movies = [];
+  } catch (e) {
+    movies = [];
+  }
+
   let filterWaitingOnly = false;
   let collapsedYears = new Set();
-
-  // 編集用の一時データ
   let editingId = null;
   let currentPoster = '';
   let currentTime = '';
@@ -371,7 +389,46 @@
   let currentFusenTag = 'ストーリー';
   let currentNotes = [];
 
-  // 初期描画
+  // イベント登録
+  document.getElementById('fabAddBtn').addEventListener('click', () => openModal(null));
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  document.getElementById('saveMovieBtn').addEventListener('click', saveMovie);
+  document.getElementById('deleteMovieBtn').addEventListener('click', deleteMovie);
+  document.getElementById('copyShareBtn').addEventListener('click', copyForShare);
+  document.getElementById('filterWaitingBtn').addEventListener('click', toggleWaitingFilter);
+  document.getElementById('sortSelect').addEventListener('change', renderList);
+  document.getElementById('fPoster').addEventListener('change', handleImageUpload);
+  document.getElementById('clearPosterBtn').addEventListener('click', clearPoster);
+  document.getElementById('resetRatingBtn').addEventListener('click', () => setRating(0));
+  document.getElementById('addFusenBtn').addEventListener('click', addFusen);
+
+  // バックアップモーダル関連
+  document.getElementById('backupMenuBtn').addEventListener('click', () => {
+    document.getElementById('backupOverlay').classList.add('open');
+  });
+  document.getElementById('closeBackupBtn').addEventListener('click', () => {
+    document.getElementById('backupOverlay').classList.remove('open');
+  });
+  document.getElementById('exportDataBtn').addEventListener('click', exportData);
+  document.getElementById('importDataBtn').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+  document.getElementById('importFileInput').addEventListener('change', importData);
+
+  // 時間帯チップ
+  document.querySelectorAll('#timeChips .chip').forEach(el => {
+    el.addEventListener('click', () => selectTime(el.dataset.val));
+  });
+
+  // ふせんタグ
+  document.querySelectorAll('#fusenTags .fusen-tag').forEach(el => {
+    el.addEventListener('click', () => {
+      currentFusenTag = el.dataset.tag;
+      document.querySelectorAll('.fusen-tag').forEach(t => t.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+  });
+
   initStarsUI();
   renderList();
 
@@ -379,7 +436,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(movies));
     } catch (e) {
-      alert('保存容量がいっぱいです。古いポスター画像を削除してみてください。');
+      alert('保存容量がいっぱいです。古いポスター画像を減らすか、バックアップを取ってください。');
     }
   }
 
@@ -396,7 +453,6 @@
   function renderList() {
     const listEl = document.getElementById('movieList');
     const sortVal = document.getElementById('sortSelect').value;
-
     let filtered = movies.filter(m => !filterWaitingOnly || isWaiting(m));
 
     if (filtered.length === 0) {
@@ -404,16 +460,14 @@
       return;
     }
 
-    // ソート
     filtered.sort((a, b) => {
-      if (sortVal === 'date_desc') return (b.date || '').localeCompare(a.date || '') || b.createdAt - a.createdAt;
+      if (sortVal === 'date_desc') return (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0);
       if (sortVal === 'rating_desc') return (b.rating || 0) - (a.rating || 0);
       if (sortVal === 'title_asc') return (a.title || '').localeCompare(b.title || '', 'ja');
       if (sortVal === 'theater_asc') return (a.theater || 'ん').localeCompare(b.theater || 'ん', 'ja');
       return 0;
     });
 
-    // 日付順のときだけ年別グループ化（最新年以外はデフォルトで畳む）
     if (sortVal === 'date_desc') {
       const groups = {};
       filtered.forEach(m => {
@@ -424,7 +478,6 @@
       const years = Object.keys(groups).sort((a, b) => b.localeCompare(a));
       const latestYear = years[0];
 
-      // 初回表示時に最新年以外を畳む
       years.forEach(y => {
         if (y !== latestYear && !collapsedYears.has('init_' + y)) {
           collapsedYears.add(y);
@@ -436,7 +489,7 @@
         const isCollapsed = collapsedYears.has(y);
         return `
           <div class="year-group">
-            <div class="year-header" onclick="toggleYear('${y}')">
+            <div class="year-header" data-year="${escapeHtml(y)}">
               <span>${y === '日付なし' ? y : y + '年'} (${groups[y].length}本)</span>
               <span>${isCollapsed ? '▼ 開く' : '▲ 閉じる'}</span>
             </div>
@@ -446,15 +499,22 @@
           </div>
         `;
       }).join('');
+
+      listEl.querySelectorAll('.year-header').forEach(el => {
+        el.addEventListener('click', () => {
+          const y = el.dataset.year;
+          if (collapsedYears.has(y)) collapsedYears.delete(y);
+          else collapsedYears.add(y);
+          renderList();
+        });
+      });
     } else {
       listEl.innerHTML = filtered.map(renderCard).join('');
     }
-  }
 
-  function toggleYear(y) {
-    if (collapsedYears.has(y)) collapsedYears.delete(y);
-    else collapsedYears.add(y);
-    renderList();
+    listEl.querySelectorAll('.movie-card').forEach(el => {
+      el.addEventListener('click', () => openModal(el.dataset.id));
+    });
   }
 
   function renderCard(m) {
@@ -465,10 +525,10 @@
     const metaParts = [m.date, m.time, m.theater].filter(Boolean).join(' / ');
     const statusHtml = waiting
       ? `<span class="badge-waiting">感想待ち</span>`
-      : `<span class="card-rating">★ ${Number(m.rating).toFixed(1)}</span><span class="note-count">ふせん ${m.notes.length}枚</span>`;
+      : `<span class="card-rating">★ ${Number(m.rating).toFixed(1)}</span><span class="note-count">ふせん ${(m.notes || []).length}枚</span>`;
 
     return `
-      <div class="movie-card" onclick="openModal('${m.id}')">
+      <div class="movie-card" data-id="${escapeHtml(m.id)}">
         ${posterHtml}
         <div class="card-info">
           <div>
@@ -481,8 +541,7 @@
     `;
   }
 
-  // モーダル操作
-  function openModal(id = null) {
+  function openModal(id) {
     editingId = id;
     const m = id ? movies.find(x => x.id === id) : null;
 
@@ -500,6 +559,7 @@
     currentPoster = m ? (m.poster || '') : '';
     updatePosterPreview();
 
+    currentTime = '';
     selectTime(m ? (m.time || '') : '');
     setRating(m ? (m.rating || 0) : 0);
     currentNotes = m ? JSON.parse(JSON.stringify(m.notes || [])) : [];
@@ -516,7 +576,6 @@
     const title = document.getElementById('fTitle').value.trim();
     if (!title) { alert('タイトルを入力してください'); return; }
 
-    // ふせん入力欄に文字が残っていたら自動で追加
     const pendingFusen = document.getElementById('fFusenText').value.trim();
     if (pendingFusen) {
       currentNotes.push({ id: Date.now(), tag: currentFusenTag, text: pendingFusen });
@@ -556,4 +615,168 @@
     renderList();
   }
 
-  // 画像
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxW = 240;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        currentPoster = canvas.toDataURL('image/jpeg', 0.65);
+        updatePosterPreview();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearPoster() {
+    currentPoster = '';
+    document.getElementById('fPoster').value = '';
+    updatePosterPreview();
+  }
+
+  function updatePosterPreview() {
+    const box = document.getElementById('posterPreviewBox');
+    box.innerHTML = currentPoster ? `<img src="${currentPoster}" class="poster-preview">` : '🎬';
+  }
+
+  function selectTime(val) {
+    currentTime = (currentTime === val) ? '' : val;
+    document.querySelectorAll('#timeChips .chip').forEach(el => {
+      el.classList.toggle('selected', el.dataset.val === currentTime);
+    });
+  }
+
+  function initStarsUI() {
+    const wrap = document.getElementById('starsWrap');
+    wrap.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const unit = document.createElement('div');
+      unit.className = 'star-unit';
+      unit.innerHTML = `
+        <span>★</span>
+        <span class="star-fill" id="starFill${i}" style="width:0%">★</span>
+        <div class="star-half-l"></div>
+        <div class="star-half-r"></div>
+      `;
+      unit.querySelector('.star-half-l').addEventListener('click', () => setRating(i - 0.5));
+      unit.querySelector('.star-half-r').addEventListener('click', () => setRating(i));
+      wrap.appendChild(unit);
+    }
+  }
+
+  function setRating(val) {
+    currentRating = val;
+    document.getElementById('ratingNum').textContent = Number(val).toFixed(1);
+    for (let i = 1; i <= 5; i++) {
+      const fill = document.getElementById(`starFill${i}`);
+      if (val >= i) fill.style.width = '100%';
+      else if (val >= i - 0.5) fill.style.width = '50%';
+      else fill.style.width = '0%';
+    }
+  }
+
+  function addFusen() {
+    const input = document.getElementById('fFusenText');
+    const text = input.value.trim();
+    if (!text) return;
+    currentNotes.push({ id: Date.now(), tag: currentFusenTag, text });
+    input.value = '';
+    renderFusenList();
+  }
+
+  function renderFusenList() {
+    const list = document.getElementById('fusenList');
+    if (currentNotes.length === 0) {
+      list.innerHTML = `<div style="font-size:0.8rem; color:var(--text-sub); text-align:center; padding:10px;">まだふせんがありません</div>`;
+      return;
+    }
+    list.innerHTML = currentNotes.map(n => `
+      <div class="fusen-item">
+        <div class="fusen-item-tag">${escapeHtml(n.tag)}</div>
+        <div class="fusen-item-text">${escapeHtml(n.text)}</div>
+        <button type="button" class="fusen-del" data-id="${n.id}">×</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.fusen-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = Number(btn.dataset.id);
+        currentNotes = currentNotes.filter(n => n.id !== id);
+        renderFusenList();
+      });
+    });
+  }
+
+  function copyForShare() {
+    const title = document.getElementById('fTitle').value.trim();
+    const date = document.getElementById('fDate').value;
+    const theater = document.getElementById('fTheater').value.trim();
+    const goods = document.getElementById('fGoods').value.trim();
+    const notesText = currentNotes.map(n => `・[${n.tag}] ${n.text}`).join('\n');
+
+    const text = `『${title}』 ★${currentRating.toFixed(1)}\n` +
+      `鑑賞: ${date} ${currentTime} ${theater}\n` +
+      (goods ? `飯・グッズ: ${goods}\n` : '') +
+      (notesText ? `\n【感想メモ】\n${notesText}` : '');
+
+    navigator.clipboard.writeText(text).then(() => {
+      alert('感想をコピーしました！');
+    });
+  }
+
+  // バックアップ保存
+  function exportData() {
+    const dataStr = JSON.stringify(movies, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `cinema-fusen-backup-${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // バックアップ復元
+  function importData(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (!Array.isArray(parsed)) throw new Error('形式が違います');
+        if (!confirm(`${parsed.length}件の映画データを読み込みますか？（現在のデータは上書きされます）`)) return;
+        movies = parsed;
+        saveToStorage();
+        renderList();
+        document.getElementById('backupOverlay').classList.remove('open');
+        alert('データを復元しました！');
+      } catch (err) {
+        alert('ファイルの読み込みに失敗しました。正しいバックアップファイルか確認してください。');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+  }
+});
+</script>
+</body>
+</html>
