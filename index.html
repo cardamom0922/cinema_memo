@@ -41,7 +41,7 @@
   h1 { margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 6px; }
   .header-btns { display: flex; gap: 6px; align-items: center; }
   .controls { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-  select, .filter-btn, .icon-btn {
+  .controls select, .filter-btn, .icon-btn {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; color: var(--text);
     outline: none; cursor: pointer;
@@ -136,13 +136,17 @@
   .section-title:first-child { margin-top: 0; }
   .form-group { margin-bottom: 12px; }
   label { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; }
-  input[type="text"], input[type="date"], textarea {
+  input[type="text"], input[type="date"], input[type="number"], select.form-select, textarea {
     width: 100%; padding: 10px 12px; border: 1px solid var(--border);
     border-radius: 10px; background: var(--surface); color: var(--text);
     font-size: 0.95rem; font-family: inherit; outline: none;
   }
-  input:focus, textarea:focus { border-color: var(--accent-dark); }
+  input:focus, select.form-select:focus, textarea:focus { border-color: var(--accent-dark); }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .price-wrap { position: relative; display: flex; align-items: center; }
+  .price-wrap input { padding-right: 32px; }
+  .price-unit { position: absolute; right: 12px; font-size: 0.85rem; color: var(--text-sub); pointer-events: none; }
 
   .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip {
@@ -150,6 +154,15 @@
     background: var(--surface); font-size: 0.85rem; cursor: pointer;
   }
   .chip.selected { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+  /* 映画館候補チップ */
+  .theater-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .theater-chip {
+    font-size: 0.78rem; padding: 4px 10px; border-radius: 14px;
+    background: var(--accent-light); color: var(--text); border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .theater-chip:active { background: var(--accent); }
 
   .poster-upload-area { display: flex; align-items: center; gap: 12px; }
   .poster-preview {
@@ -276,15 +289,15 @@
         </div>
       </div>
 
-      <div class="row-2">
-        <div class="form-group">
-          <label>観る日</label>
-          <input type="date" id="fDate">
-        </div>
-        <div class="form-group">
-          <label>映画館</label>
-          <input type="text" id="fTheater" placeholder="例: TOHOシネマズ">
-        </div>
+      <div class="form-group">
+        <label>観る日</label>
+        <input type="date" id="fDate">
+      </div>
+
+      <div class="form-group">
+        <label>映画館（入力して保存すると下に候補が溜まります）</label>
+        <input type="text" id="fTheater" placeholder="例: TOHOシネマズ 梅田">
+        <div class="theater-chips" id="theaterChips"></div>
       </div>
 
       <div class="form-group">
@@ -295,6 +308,25 @@
           <div class="chip" data-val="夕方">夕方</div>
           <div class="chip" data-val="夜">夜</div>
           <div class="chip" data-val="レイト">レイト</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>チケット購入（買い方 / 値段）</label>
+        <div class="row-2">
+          <select id="fTicketType" class="form-select">
+            <option value="">買い方を選択</option>
+            <option value="一般">一般</option>
+            <option value="ムビチケ">ムビチケ</option>
+            <option value="レイト">レイト</option>
+            <option value="福利厚生">福利厚生</option>
+            <option value="割り引き日">割り引き日</option>
+            <option value="その他">その他</option>
+          </select>
+          <div class="price-wrap">
+            <input type="number" id="fTicketPrice" inputmode="numeric" placeholder="例: 1500">
+            <span class="price-unit">円</span>
+          </div>
         </div>
       </div>
 
@@ -389,7 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentFusenTag = 'ストーリー';
   let currentNotes = [];
 
-  // イベント登録
   document.getElementById('fabAddBtn').addEventListener('click', () => openModal(null));
   document.getElementById('closeModalBtn').addEventListener('click', closeModal);
   document.getElementById('saveMovieBtn').addEventListener('click', saveMovie);
@@ -402,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resetRatingBtn').addEventListener('click', () => setRating(0));
   document.getElementById('addFusenBtn').addEventListener('click', addFusen);
 
-  // バックアップモーダル関連
   document.getElementById('backupMenuBtn').addEventListener('click', () => {
     document.getElementById('backupOverlay').classList.add('open');
   });
@@ -415,12 +445,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('importFileInput').addEventListener('change', importData);
 
-  // 時間帯チップ
   document.querySelectorAll('#timeChips .chip').forEach(el => {
     el.addEventListener('click', () => selectTime(el.dataset.val));
   });
 
-  // ふせんタグ
   document.querySelectorAll('#fusenTags .fusen-tag').forEach(el => {
     el.addEventListener('click', () => {
       currentFusenTag = el.dataset.tag;
@@ -448,6 +476,32 @@ document.addEventListener('DOMContentLoaded', () => {
     filterWaitingOnly = !filterWaitingOnly;
     document.getElementById('filterWaitingBtn').classList.toggle('active', filterWaitingOnly);
     renderList();
+  }
+
+  // よく行く映画館の候補チップを描画
+  function renderTheaterChips() {
+    const container = document.getElementById('theaterChips');
+    const counts = {};
+    movies.forEach(m => {
+      const t = (m.theater || '').trim();
+      if (t) counts[t] = (counts[t] || 0) + 1;
+    });
+    const sortedTheaters = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
+    if (sortedTheaters.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = sortedTheaters.map(t =>
+      `<span class="theater-chip" data-val="${escapeHtml(t)}">${escapeHtml(t)}</span>`
+    ).join('');
+
+    container.querySelectorAll('.theater-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        document.getElementById('fTheater').value = el.dataset.val;
+      });
+    });
   }
 
   function renderList() {
@@ -551,10 +605,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('fTitle').value = m ? m.title : '';
     document.getElementById('fDate').value = m ? m.date : new Date().toISOString().slice(0, 10);
     document.getElementById('fTheater').value = m ? m.theater : '';
+    document.getElementById('fTicketType').value = m ? (m.ticketType || '') : '';
+    document.getElementById('fTicketPrice').value = m ? (m.ticketPrice || '') : '';
     document.getElementById('fGoods').value = m ? m.goods : '';
     document.getElementById('fExpect').value = m ? m.expect : '';
     document.getElementById('fPoster').value = '';
     document.getElementById('fFusenText').value = '';
+
+    renderTheaterChips();
 
     currentPoster = m ? (m.poster || '') : '';
     updatePosterPreview();
@@ -588,6 +646,8 @@ document.addEventListener('DOMContentLoaded', () => {
       date: document.getElementById('fDate').value,
       theater: document.getElementById('fTheater').value.trim(),
       time: currentTime,
+      ticketType: document.getElementById('fTicketType').value,
+      ticketPrice: document.getElementById('fTicketPrice').value.trim(),
       goods: document.getElementById('fGoods').value.trim(),
       expect: document.getElementById('fExpect').value.trim(),
       rating: currentRating,
@@ -720,11 +780,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = document.getElementById('fTitle').value.trim();
     const date = document.getElementById('fDate').value;
     const theater = document.getElementById('fTheater').value.trim();
+    const ticketType = document.getElementById('fTicketType').value;
+    const ticketPrice = document.getElementById('fTicketPrice').value.trim();
     const goods = document.getElementById('fGoods').value.trim();
     const notesText = currentNotes.map(n => `・[${n.tag}] ${n.text}`).join('\n');
 
+    const ticketInfo = [ticketType, ticketPrice ? `${ticketPrice}円` : ''].filter(Boolean).join(' / ');
+
     const text = `『${title}』 ★${currentRating.toFixed(1)}\n` +
       `鑑賞: ${date} ${currentTime} ${theater}\n` +
+      (ticketInfo ? `チケット: ${ticketInfo}\n` : '') +
       (goods ? `飯・グッズ: ${goods}\n` : '') +
       (notesText ? `\n【感想メモ】\n${notesText}` : '');
 
@@ -733,7 +798,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // バックアップ保存
   function exportData() {
     const dataStr = JSON.stringify(movies, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -748,7 +812,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
-  // バックアップ復元
   function importData(e) {
     const file = e.target.files[0];
     if (!file) return;
