@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>シネマふせん - スピード映画感想メモ</title>
+<style>
+  :root {
+    --bg: #FFFDF2;
+    --surface: #FFFFFF;
+    --accent-light: #FFF4C2;
+    --accent: #F4C430;
+    --accent-dark: #D49B00;
+    --text: #3D3522;
+    --text-sub: #7A7058;
+    --border: #EFE5C3;
+    --waiting: #FF9F43;
+    --danger: #E74C3C;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0 0 90px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ヘッダー */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255, 253, 242, 0.94);
+    backdrop-filter: blur(8px);
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  h1 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 6px; }
+  .controls {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;
+  }
+  select, .filter-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; color: var(--text);
+    outline: none;
+  }
+  .filter-btn.active {
+    background: var(--accent); border-color: var(--accent); font-weight: bold;
+  }
+
+  /* メインリスト */
+  main { padding: 12px 16px; max-width: 600px; margin: 0 auto; }
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-sub);
+  }
+
+  /* 年別アコーディオン */
+  .year-group { margin-bottom: 16px; }
+  .year-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--accent-light); padding: 8px 14px; border-radius: 10px;
+    font-weight: bold; font-size: 0.95rem; cursor: pointer; margin-bottom: 10px;
+    user-select: none;
+  }
+  .year-content.collapsed { display: none; }
+
+  /* 映画カード */
+  .movie-card {
+    display: flex; gap: 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px; margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(212, 155, 0, 0.06);
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .movie-card:active { transform: scale(0.98); }
+  .poster-thumb {
+    width: 68px; height: 96px; border-radius: 8px; object-fit: cover;
+    background: var(--accent-light); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--accent-dark);
+  }
+  .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+  .card-title {
+    font-weight: bold; font-size: 1.05rem; margin: 0 0 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-meta { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px; }
+  .badge-waiting {
+    display: inline-block; background: #FFF0E0; color: var(--waiting);
+    font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 10px;
+  }
+  .card-rating { color: var(--accent-dark); font-weight: bold; font-size: 0.9rem; }
+  .note-count { font-size: 0.75rem; color: var(--text-sub); margin-left: 8px; }
+
+  /* 追加ボタン（FAB） */
+  .fab {
+    position: fixed; right: 20px; bottom: 24px;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--accent); color: var(--text);
+    border: none; font-size: 2rem; font-weight: bold;
+    box-shadow: 0 4px 12px rgba(212, 155, 0, 0.35);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 20;
+  }
+  .fab:active { transform: scale(0.92); }
+
+  /* モーダル（登録・編集画面） */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(61, 53, 34, 0.45);
+    z-index: 30; display: none; align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg); width: 100%; max-width: 600px;
+    height: 92vh; border-radius: 20px 20px 0 0;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-body {
+    flex: 1; overflow-y: auto; padding: 16px;
+  }
+  .btn-text {
+    background: none; border: none; font-size: 0.95rem; color: var(--text-sub);
+    padding: 6px 8px; cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--text); border: none;
+    border-radius: 20px; padding: 8px 18px; font-weight: bold; font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  /* フォーム要素 */
+  .section-title {
+    font-size: 0.85rem; font-weight: bold; color: var(--accent-dark);
+    margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px dashed var(--border); padding-bottom: 4px;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .form-group { margin-bottom: 12px; }
+  label { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; }
+  input[type="text"], input[type="date"], textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--surface); color: var(--text);
+    font-size: 0.95rem; font-family: inherit; outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--accent-dark); }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* 時間帯チップ */
+  .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    padding: 6px 12px; border-radius: 16px; border: 1px solid var(--border);
+    background: var(--surface); font-size: 0.85rem; cursor: pointer;
+  }
+  .chip.selected { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+  /* ポスターアップロード */
+  .poster-upload-area {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .poster-preview {
+    width: 60px; height: 84px; border-radius: 8px; object-fit: cover;
+    background: var(--accent-light); display: flex; align-items: center;
+    justify-content: center; font-size: 1.2rem; color: var(--accent-dark);
+  }
+
+  /* 星評価（0.5刻み） */
+  .star-box {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); padding: 10px 14px; border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .stars-wrap { display: flex; gap: 4px; user-select: none; }
+  .star-unit {
+    position: relative; width: 34px; height: 34px; font-size: 32px;
+    line-height: 34px; cursor: pointer; color: #E5DFC5;
+  }
+  .star-unit .star-fill {
+    position: absolute; top: 0; left: 0; overflow: hidden; color: var(--accent);
+    pointer-events: none;
+  }
+  .star-half-l, .star-half-r {
+    position: absolute; top: 0; bottom: 0; width: 50%; z-index: 2;
+  }
+  .star-half-l { left: 0; }
+  .star-half-r { right: 0; }
+  .rating-num { font-size: 1.2rem; font-weight: bold; color: var(--accent-dark); min-width: 40px; }
+
+  /* ふせん感想メモ */
+  .fusen-input-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px; margin-bottom: 12px;
+  }
+  .fusen-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .fusen-tag {
+    font-size: 0.75rem; padding: 4px 10px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--bg); cursor: pointer;
+  }
+  .fusen-tag.selected { background: var(--accent-light); border-color: var(--accent-dark); font-weight: bold; }
+  .fusen-add-row { display: flex; gap: 8px; }
+  .fusen-list { display: flex; flex-direction: column; gap: 8px; }
+  .fusen-item {
+    background: #FFFBE6; border-left: 4px solid var(--accent);
+    padding: 10px 12px; border-radius: 8px; position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .fusen-item-tag {
+    display: inline-block; font-size: 0.7rem; font-weight: bold;
+    color: var(--accent-dark); background: var(--surface);
+    padding: 1px 6px; border-radius: 6px; margin-bottom: 4px;
+  }
+  .fusen-item-text { font-size: 0.9rem; white-space: pre-wrap; padding-right: 24px; }
+  .fusen-del {
+    position: absolute; top: 8px; right: 8px; background: none; border: none;
+    color: var(--text-sub); font-size: 1rem; cursor: pointer;
+  }
+
+  /* アクションボタン群（コピー・削除） */
+  .modal-footer-actions {
+    display: flex; gap: 10px; margin-top: 24px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-outline {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--accent-dark);
+    background: var(--surface); color: var(--accent-dark); font-weight: bold; cursor: pointer;
+  }
+  .btn-danger {
+    padding: 10px 14px; border-radius: 10px; border: 1px solid #FADBD8;
+    background: #FDEDEC; color: var(--danger); font-weight: bold; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>🎬 シネマふせん</h1>
+    <button id="filterWaitingBtn" class="filter-btn" onclick="toggleWaitingFilter()">感想待ちのみ</button>
+  </div>
+  <div class="controls">
+    <select id="sortSelect" onchange="renderList()">
+      <option value="date_desc">新しい順</option>
+      <option value="rating_desc">評価が高い順</option>
+      <option value="title_asc">タイトル順</option>
+      <option value="theater_asc">映画館順</option>
+    </select>
+  </div>
+</header>
+
+<main id="movieList"></main>
+
+<button class="fab" onclick="openModal()" aria-label="映画を追加">＋</button>
+
+<!-- 登録・編集モーダル -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="btn-text" onclick="closeModal()">閉じる</button>
+      <strong id="modalTitle">映画を記録</strong>
+      <button class="btn-primary" onclick="saveMovie()">保存</button>
+    </div>
+    <div class="modal-body">
+      <!-- 鑑賞前セクション -->
+      <div class="section-title">🎟️ 観る前メモ（基本情報）</div>
+      
+      <div class="form-group">
+        <label>タイトル *</label>
+        <input type="text" id="fTitle" placeholder="映画のタイトル">
+      </div>
+
+      <div class="form-group">
+        <label>ポスター画像</label>
+        <div class="poster-upload-area">
+          <div id="posterPreviewBox" class="poster-preview">🎬</div>
+          <div>
+            <input type="file" id="fPoster" accept="image/*" style="font-size:0.8rem; width:100%;" onchange="handleImageUpload(event)">
+            <button type="button" class="btn-text" style="font-size:0.75rem; padding:4px 0;" onclick="clearPoster()">画像をクリア</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label>観る日</label>
+          <input type="date" id="fDate">
+        </div>
+        <div class="form-group">
+          <label>映画館</label>
+          <input type="text" id="fTheater" placeholder="例: TOHOシネマズ">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>時間帯</label>
+        <div class="chip-group" id="timeChips">
+          <div class="chip" data-val="朝" onclick="selectTime('朝')">朝</div>
+          <div class="chip" data-val="昼" onclick="selectTime('昼')">昼</div>
+          <div class="chip" data-val="夕方" onclick="selectTime('夕方')">夕方</div>
+          <div class="chip" data-val="夜" onclick="selectTime('夜')">夜</div>
+          <div class="chip" data-val="レイト" onclick="selectTime('レイト')">レイト</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>買った飯・グッズ</label>
+        <input type="text" id="fGoods" placeholder="例: キャラメルポップコーン、パンフレット">
+      </div>
+
+      <div class="form-group">
+        <label>期待メモ</label>
+        <textarea id="fExpect" rows="2" placeholder="観る前のワクワクや注目ポイント"></textarea>
+      </div>
+
+      <!-- 鑑賞後セクション -->
+      <div class="section-title">🍿 観たあとメモ（評価・ふせん）</div>
+
+      <div class="form-group">
+        <label>評価（星の左右をタップして0.5刻みで入力）</label>
+        <div class="star-box">
+          <div class="stars-wrap" id="starsWrap"></div>
+          <div class="rating-num" id="ratingNum">0.0</div>
+          <button type="button" class="btn-text" style="font-size:0.75rem; margin-left:auto;" onclick="setRating(0)">リセット</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>感想ふせん（タグを選んでどんどん追加）</label>
+        <div class="fusen-input-box">
+          <div class="fusen-tags" id="fusenTags">
+            <span class="fusen-tag selected" onclick="selectFusenTag(this, 'ストーリー')">ストーリー</span>
+            <span class="fusen-tag" onclick="selectFusenTag(this, '役者')">役者</span>
+            <span class="fusen-tag" onclick="selectFusenTag(this, '映像・セット')">映像・セット</span>
+            <span class="fusen-tag" onclick="selectFusenTag(this, '音楽')">音楽</span>
+            <span class="fusen-tag" onclick="selectFusenTag(this, 'その他')">その他</span>
+          </div>
+          <div class="fusen-add-row">
+            <input type="text" id="fFusenText" placeholder="ここが良かった！などをささっと入力">
+            <button type="button" class="btn-primary" style="padding:8px 14px; border-radius:10px; flex-shrink:0;" onclick="addFusen()">追加</button>
+          </div>
+        </div>
+        <div class="fusen-list" id="fusenList"></div>
+      </div>
+
+      <div class="modal-footer-actions" id="editActions" style="display:none;">
+        <button type="button" class="btn-outline" onclick="copyForShare()">📋 感想をコピー</button>
+        <button type="button" class="btn-danger" onclick="deleteMovie()">削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'cinema_fusen_movies_v1';
+  let movies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let filterWaitingOnly = false;
+  let collapsedYears = new Set();
+
+  // 編集用の一時データ
+  let editingId = null;
+  let currentPoster = '';
+  let currentTime = '';
+  let currentRating = 0;
+  let currentFusenTag = 'ストーリー';
+  let currentNotes = [];
+
+  // 初期描画
+  initStarsUI();
+  renderList();
+
+  function saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(movies));
+    } catch (e) {
+      alert('保存容量がいっぱいです。古いポスター画像を削除してみてください。');
+    }
+  }
+
+  function isWaiting(m) {
+    return (!m.rating || m.rating === 0) && (!m.notes || m.notes.length === 0);
+  }
+
+  function toggleWaitingFilter() {
+    filterWaitingOnly = !filterWaitingOnly;
+    document.getElementById('filterWaitingBtn').classList.toggle('active', filterWaitingOnly);
+    renderList();
+  }
+
+  function renderList() {
+    const listEl = document.getElementById('movieList');
+    const sortVal = document.getElementById('sortSelect').value;
+
+    let filtered = movies.filter(m => !filterWaitingOnly || isWaiting(m));
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">記録がありません。<br>右下の「＋」から映画を追加しましょう！</div>`;
+      return;
+    }
+
+    // ソート
+    filtered.sort((a, b) => {
+      if (sortVal === 'date_desc') return (b.date || '').localeCompare(a.date || '') || b.createdAt - a.createdAt;
+      if (sortVal === 'rating_desc') return (b.rating || 0) - (a.rating || 0);
+      if (sortVal === 'title_asc') return (a.title || '').localeCompare(b.title || '', 'ja');
+      if (sortVal === 'theater_asc') return (a.theater || 'ん').localeCompare(b.theater || 'ん', 'ja');
+      return 0;
+    });
+
+    // 日付順のときだけ年別グループ化（最新年以外はデフォルトで畳む）
+    if (sortVal === 'date_desc') {
+      const groups = {};
+      filtered.forEach(m => {
+        const y = m.date ? m.date.slice(0, 4) : '日付なし';
+        if (!groups[y]) groups[y] = [];
+        groups[y].push(m);
+      });
+      const years = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+      const latestYear = years[0];
+
+      // 初回表示時に最新年以外を畳む
+      years.forEach(y => {
+        if (y !== latestYear && !collapsedYears.has('init_' + y)) {
+          collapsedYears.add(y);
+          collapsedYears.add('init_' + y);
+        }
+      });
+
+      listEl.innerHTML = years.map(y => {
+        const isCollapsed = collapsedYears.has(y);
+        return `
+          <div class="year-group">
+            <div class="year-header" onclick="toggleYear('${y}')">
+              <span>${y === '日付なし' ? y : y + '年'} (${groups[y].length}本)</span>
+              <span>${isCollapsed ? '▼ 開く' : '▲ 閉じる'}</span>
+            </div>
+            <div class="year-content ${isCollapsed ? 'collapsed' : ''}">
+              ${groups[y].map(renderCard).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      listEl.innerHTML = filtered.map(renderCard).join('');
+    }
+  }
+
+  function toggleYear(y) {
+    if (collapsedYears.has(y)) collapsedYears.delete(y);
+    else collapsedYears.add(y);
+    renderList();
+  }
+
+  function renderCard(m) {
+    const waiting = isWaiting(m);
+    const posterHtml = m.poster
+      ? `<img src="${m.poster}" class="poster-thumb" alt="">`
+      : `<div class="poster-thumb">🎬</div>`;
+    const metaParts = [m.date, m.time, m.theater].filter(Boolean).join(' / ');
+    const statusHtml = waiting
+      ? `<span class="badge-waiting">感想待ち</span>`
+      : `<span class="card-rating">★ ${Number(m.rating).toFixed(1)}</span><span class="note-count">ふせん ${m.notes.length}枚</span>`;
+
+    return `
+      <div class="movie-card" onclick="openModal('${m.id}')">
+        ${posterHtml}
+        <div class="card-info">
+          <div>
+            <div class="card-title">${escapeHtml(m.title)}</div>
+            <div class="card-meta">${escapeHtml(metaParts || '詳細未設定')}</div>
+          </div>
+          <div>${statusHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // モーダル操作
+  function openModal(id = null) {
+    editingId = id;
+    const m = id ? movies.find(x => x.id === id) : null;
+
+    document.getElementById('modalTitle').textContent = m ? '映画を編集' : '映画を記録';
+    document.getElementById('editActions').style.display = m ? 'flex' : 'none';
+
+    document.getElementById('fTitle').value = m ? m.title : '';
+    document.getElementById('fDate').value = m ? m.date : new Date().toISOString().slice(0, 10);
+    document.getElementById('fTheater').value = m ? m.theater : '';
+    document.getElementById('fGoods').value = m ? m.goods : '';
+    document.getElementById('fExpect').value = m ? m.expect : '';
+    document.getElementById('fPoster').value = '';
+    document.getElementById('fFusenText').value = '';
+
+    currentPoster = m ? (m.poster || '') : '';
+    updatePosterPreview();
+
+    selectTime(m ? (m.time || '') : '');
+    setRating(m ? (m.rating || 0) : 0);
+    currentNotes = m ? JSON.parse(JSON.stringify(m.notes || [])) : [];
+    renderFusenList();
+
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function saveMovie() {
+    const title = document.getElementById('fTitle').value.trim();
+    if (!title) { alert('タイトルを入力してください'); return; }
+
+    // ふせん入力欄に文字が残っていたら自動で追加
+    const pendingFusen = document.getElementById('fFusenText').value.trim();
+    if (pendingFusen) {
+      currentNotes.push({ id: Date.now(), tag: currentFusenTag, text: pendingFusen });
+    }
+
+    const data = {
+      id: editingId || String(Date.now()),
+      title,
+      poster: currentPoster,
+      date: document.getElementById('fDate').value,
+      theater: document.getElementById('fTheater').value.trim(),
+      time: currentTime,
+      goods: document.getElementById('fGoods').value.trim(),
+      expect: document.getElementById('fExpect').value.trim(),
+      rating: currentRating,
+      notes: currentNotes,
+      createdAt: editingId ? (movies.find(x => x.id === editingId)?.createdAt || Date.now()) : Date.now()
+    };
+
+    if (editingId) {
+      const idx = movies.findIndex(x => x.id === editingId);
+      if (idx !== -1) movies[idx] = data;
+    } else {
+      movies.unshift(data);
+    }
+
+    saveToStorage();
+    closeModal();
+    renderList();
+  }
+
+  function deleteMovie() {
+    if (!confirm('この映画の記録を削除しますか？')) return;
+    movies = movies.filter(x => x.id !== editingId);
+    saveToStorage();
+    closeModal();
+    renderList();
+  }
+
+  // 画像
